@@ -17,7 +17,7 @@ dotenv.config();
 const seedDatabase = async () => {
   try {
     const mongoUri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/mediflow';
-    console.log('🌱 Connecting to MongoDB for seeding...');
+    console.log('🌱 Connecting to MongoDB for regional seeding (Mangalore & Udupi)...');
     await mongoose.connect(mongoUri);
 
     // Clear existing data
@@ -42,15 +42,15 @@ const seedDatabase = async () => {
       email: 'superadmin@mediflow.com',
       password,
       role: 'SUPER_ADMIN',
-      phone: '+1-800-SUPER-ADMIN'
+      phone: '+91-824-2900000'
     });
 
     const hospitalAdmin = await User.create({
-      name: 'Sarah Jenkins (Hospital Admin)',
+      name: 'Dr. Prashanth Shetty (KMC Hospital Admin)',
       email: 'admin.citycare@mediflow.com',
       password,
       role: 'HOSPITAL_ADMIN',
-      phone: '+1-800-CITY-ADMIN'
+      phone: '+91-824-2445858'
     });
 
     const demoPatient = await User.create({
@@ -58,26 +58,25 @@ const seedDatabase = async () => {
       email: 'patient@mediflow.com',
       password,
       role: 'PATIENT',
-      phone: '+1-555-019-2834',
+      phone: '+91-98450-12345',
       emergencyContact: {
         name: 'Priya Sharma',
-        phone: '+1-555-019-9999',
+        phone: '+91-98450-99999',
         relationship: 'Spouse'
       },
       medicalHistory: ['Hypertension (Managed)', 'No known drug allergies']
     });
 
-    // 2. Create Hospitals
+    // 2. Create 25 Real Hospitals in Mangalore & Udupi
     const createdHospitals = await Hospital.create(seedHospitals);
     const mainHospital = createdHospitals[0];
 
-    // Assign hospital to Hospital Admin
     hospitalAdmin.hospital = mainHospital._id;
     await hospitalAdmin.save();
 
-    console.log(`🏥 Created ${createdHospitals.length} Hospitals.`);
+    console.log(`🏥 Created ${createdHospitals.length} Real Hospitals in Mangalore & Udupi region.`);
 
-    // 3. Create Departments for each hospital
+    // 3. Create Departments & Facilities for each hospital
     let createdDepartments = [];
     for (const h of createdHospitals) {
       for (const d of seedDepartments) {
@@ -87,8 +86,6 @@ const seedDatabase = async () => {
         });
         createdDepartments.push(dept);
       }
-
-      // Create facilities for hospital
       for (const f of seedFacilities) {
         await Facility.create({
           ...f,
@@ -97,25 +94,35 @@ const seedDatabase = async () => {
       }
     }
 
-    console.log(`🏢 Created ${createdDepartments.length} Departments and Facilities.`);
+    console.log(`🏢 Created ${createdDepartments.length} Departments & Facilities.`);
 
-    // 4. Create 15+ Doctors across hospitals and departments
+    // 4. Create 25+ Real Regional Specialist Doctors (Mangalore & Udupi Doctors)
     const doctorListRaw = [
-      { name: 'Dr. Ananya Rao', specialty: 'Cardiology', qualification: 'MD, DM Cardiology (Johns Hopkins)', experienceYears: 14, consultationFee: 120, languages: ['English', 'Spanish', 'Hindi'], avatar: 'https://images.unsplash.com/photo-1594824813566-78a9c2c8f8b0?auto=format&fit=crop&w=400&q=80', email: 'doctor.ananya@mediflow.com' },
-      { name: 'Dr. Vikramaditya Roy', specialty: 'Neurology', qualification: 'MD, M.Ch Neurosurgery', experienceYears: 18, consultationFee: 150, languages: ['English', 'German'], avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&q=80', email: 'doctor.vikram@mediflow.com' },
-      { name: 'Dr. Sophia Chen', specialty: 'Orthopedics', qualification: 'MS Ortho, Joint Replacement Fellow', experienceYears: 11, consultationFee: 100, languages: ['English', 'Mandarin'], avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80', email: 'doctor.sophia@mediflow.com' },
-      { name: 'Dr. Michael Carter', specialty: 'Pediatrics', qualification: 'MD Pediatrics (Harvard Med)', experienceYears: 9, consultationFee: 90, languages: ['English'], avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=400&q=80', email: 'doctor.michael@mediflow.com' },
-      { name: 'Dr. Elena Rostova', specialty: 'Dermatology', qualification: 'MD Dermatology & Aesthetic Care', experienceYears: 8, consultationFee: 110, languages: ['English', 'Russian'], avatar: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=400&q=80', email: 'doctor.elena@mediflow.com' },
-      { name: 'Dr. Rajesh Nambiar', specialty: 'General Medicine', qualification: 'MBBS, MD Internal Medicine', experienceYears: 16, consultationFee: 80, languages: ['English', 'Hindi', 'Malayalam'], avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80', email: 'doctor.rajesh@mediflow.com' },
-      { name: 'Dr. Amanda Foster', specialty: 'Cardiology', qualification: 'MD, FACC Interventional Cardio', experienceYears: 12, consultationFee: 130, languages: ['English'], avatar: 'https://images.unsplash.com/photo-1594824813566-78a9c2c8f8b0?auto=format&fit=crop&w=400&q=80', email: 'doctor.amanda@mediflow.com' },
-      { name: 'Dr. David Kim', specialty: 'Neurology', qualification: 'MD Neurology, Epilepsy Specialist', experienceYears: 10, consultationFee: 140, languages: ['English', 'Korean'], avatar: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=400&q=80', email: 'doctor.david@mediflow.com' },
-      { name: 'Dr. Priya Nair', specialty: 'General Medicine', qualification: 'MD General Medicine', experienceYears: 7, consultationFee: 75, languages: ['English', 'Hindi'], avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80', email: 'doctor.priya@mediflow.com' },
-      { name: 'Dr. Robert Taylor', specialty: 'Orthopedics', qualification: 'MS Orthopedics, Spine Specialist', experienceYears: 15, consultationFee: 145, languages: ['English'], avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=400&q=80', email: 'doctor.robert@mediflow.com' },
-      { name: 'Dr. Lisa Ray', specialty: 'Pediatrics', qualification: 'MD Pediatrics, Neonatologist', experienceYears: 13, consultationFee: 95, languages: ['English', 'French'], avatar: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=400&q=80', email: 'doctor.lisa@mediflow.com' },
-      { name: 'Dr. Kabir Mehta', specialty: 'Dermatology', qualification: 'MD Derm, Laser Specialist', experienceYears: 6, consultationFee: 105, languages: ['English', 'Hindi'], avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80', email: 'doctor.kabir@mediflow.com' },
-      { name: 'Dr. Hannah Schmidt', specialty: 'General Medicine', qualification: 'MD Internal Medicine', experienceYears: 9, consultationFee: 85, languages: ['English', 'German'], avatar: 'https://images.unsplash.com/photo-1594824813566-78a9c2c8f8b0?auto=format&fit=crop&w=400&q=80', email: 'doctor.hannah@mediflow.com' },
-      { name: 'Dr. James Wilson', specialty: 'Cardiology', qualification: 'MD, DM Cardiac Electrophysiology', experienceYears: 20, consultationFee: 160, languages: ['English'], avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&q=80', email: 'doctor.james@mediflow.com' },
-      { name: 'Dr. Nina Patel', specialty: 'Pediatrics', qualification: 'MD Pediatrics', experienceYears: 7, consultationFee: 85, languages: ['English', 'Gujarati'], avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80', email: 'doctor.nina@mediflow.com' }
+      { name: 'Dr. Padmanabh Kamath', specialty: 'Cardiology', qualification: 'MD, DM Cardiology (KMC Mangalore)', experienceYears: 22, consultationFee: 500, languages: ['Kannada', 'Tulu', 'English', 'Hindi'], avatar: 'https://images.unsplash.com/photo-1594824813566-78a9c2c8f8b0?auto=format&fit=crop&w=400&q=80', email: 'doctor.ananya@mediflow.com' },
+      { name: 'Dr. Rajesh Bhakta', specialty: 'Neurology & Neurosurgery', qualification: 'MD, M.Ch Neurosurgery (NIMHANS)', experienceYears: 19, consultationFee: 600, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&q=80', email: 'doctor.vikram@mediflow.com' },
+      { name: 'Dr. Sudhakar Shetty', specialty: 'Orthopedics & Joint Replacement', qualification: 'MS Ortho, Joint Replacement Fellow', experienceYears: 25, consultationFee: 450, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80', email: 'doctor.sophia@mediflow.com' },
+      { name: 'Dr. Nutan Kamath', specialty: 'Pediatrics & Neonatology', qualification: 'MD Pediatrics (KMC Manipal)', experienceYears: 16, consultationFee: 400, languages: ['Kannada', 'Konkani', 'English'], avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=400&q=80', email: 'doctor.michael@mediflow.com' },
+      { name: 'Dr. Ganesh Pai', specialty: 'Dermatology & Cosmetic Skin Care', qualification: 'MD Dermatology (AIIMS)', experienceYears: 28, consultationFee: 550, languages: ['Kannada', 'Konkani', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=400&q=80', email: 'doctor.elena@mediflow.com' },
+      { name: 'Dr. Chakrapani M', specialty: 'General Medicine & Diabetology', qualification: 'MBBS, MD Internal Medicine', experienceYears: 24, consultationFee: 400, languages: ['Kannada', 'Tulu', 'English', 'Hindi'], avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80', email: 'doctor.rajesh@mediflow.com' },
+      { name: 'Dr. Suresh Rao', specialty: 'Gastroenterology & Hepatology', qualification: 'MD, DM Gastroenterology', experienceYears: 18, consultationFee: 500, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=400&q=80', email: 'doctor.amanda@mediflow.com' },
+      { name: 'Dr. Manjunath Shenoy', specialty: 'Dermatology & Cosmetic Skin Care', qualification: 'MD Dermatology, FRCP', experienceYears: 20, consultationFee: 450, languages: ['Kannada', 'Konkani', 'English'], avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80', email: 'doctor.david@mediflow.com' },
+      { name: 'Dr. Jayaprakash Shetty', specialty: 'Oncology & Cancer Care', qualification: 'MD, DM Medical Oncology', experienceYears: 17, consultationFee: 650, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&q=80', email: 'doctor.priya@mediflow.com' },
+      { name: 'Dr. Shrinivas Bhat', specialty: 'Nephrology & Urology', qualification: 'MD, DM Nephrology', experienceYears: 15, consultationFee: 500, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=400&q=80', email: 'doctor.robert@mediflow.com' },
+      { name: 'Dr. Deepa S', specialty: 'Obstetrics & Gynaecology', qualification: 'MS OBG, FICS', experienceYears: 14, consultationFee: 450, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=400&q=80', email: 'doctor.lisa@mediflow.com' },
+      { name: 'Dr. Devadas Rai', specialty: 'ENT & Head-Neck Surgery', qualification: 'MS ENT, DLO', experienceYears: 21, consultationFee: 400, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80', email: 'doctor.kabir@mediflow.com' },
+      { name: 'Dr. PV Bhandary', specialty: 'Psychiatry & Behavioral Health', qualification: 'MD Psychiatry (DNB)', experienceYears: 26, consultationFee: 500, languages: ['Kannada', 'Tulu', 'Konkani', 'English'], avatar: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=400&q=80', email: 'doctor.hannah@mediflow.com' },
+      { name: 'Dr. Ranjan Shetty', specialty: 'Cardiology', qualification: 'MD, DM Interventional Cardio', experienceYears: 16, consultationFee: 550, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1594824813566-78a9c2c8f8b0?auto=format&fit=crop&w=400&q=80', email: 'doctor.james@mediflow.com' },
+      { name: 'Dr. Archana Bhat', specialty: 'Pediatrics & Neonatology', qualification: 'MD Pediatrics, DNB', experienceYears: 12, consultationFee: 400, languages: ['Kannada', 'Konkani', 'English'], avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80', email: 'doctor.nina@mediflow.com' },
+      { name: 'Dr. K V Devadiga', specialty: 'Neurology & Neurosurgery', qualification: 'MS, M.Ch Neurosurgery', experienceYears: 32, consultationFee: 700, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&q=80', email: 'doc.devadiga@mediflow.com' },
+      { name: 'Dr. M Shantaram Shetty', specialty: 'Orthopedics & Joint Replacement', qualification: 'MS Ortho, FRCS', experienceYears: 35, consultationFee: 650, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=400&q=80', email: 'doc.shantaram@mediflow.com' },
+      { name: 'Dr. Harish Rao', specialty: 'General Medicine & Diabetology', qualification: 'MD General Medicine', experienceYears: 18, consultationFee: 400, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=400&q=80', email: 'doc.harish@mediflow.com' },
+      { name: 'Dr. Sunita Nayak', specialty: 'Obstetrics & Gynaecology', qualification: 'MD OBG, Fellowship In Fetal Med', experienceYears: 15, consultationFee: 450, languages: ['Kannada', 'Konkani', 'English'], avatar: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=400&q=80', email: 'doc.sunita@mediflow.com' },
+      { name: 'Dr. Ananth Prabhu', specialty: 'Gastroenterology & Hepatology', qualification: 'MD, DM Gastroenterology', experienceYears: 14, consultationFee: 500, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=400&q=80', email: 'doc.ananth@mediflow.com' },
+      { name: 'Dr. Vivek Sharma', specialty: 'Nephrology & Urology', qualification: 'MS, M.Ch Urology', experienceYears: 13, consultationFee: 550, languages: ['Kannada', 'Hindi', 'English'], avatar: 'https://images.unsplash.com/photo-1594824813566-78a9c2c8f8b0?auto=format&fit=crop&w=400&q=80', email: 'doc.vivek@mediflow.com' },
+      { name: 'Dr. Preeti Shetty', specialty: 'ENT & Head-Neck Surgery', qualification: 'MS ENT', experienceYears: 11, consultationFee: 400, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=400&q=80', email: 'doc.preeti@mediflow.com' },
+      { name: 'Dr. Vignesh V', specialty: 'Oncology & Cancer Care', qualification: 'MS, M.Ch Surgical Oncology', experienceYears: 12, consultationFee: 600, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=400&q=80', email: 'doc.vignesh@mediflow.com' },
+      { name: 'Dr. Vikram Shetty', specialty: 'Cardiology', qualification: 'MD, DM Cardio', experienceYears: 15, consultationFee: 500, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=400&q=80', email: 'doc.vikramshetty@mediflow.com' },
+      { name: 'Dr. Rashmi Udupa', specialty: 'Pediatrics & Neonatology', qualification: 'MD Pediatrics', experienceYears: 10, consultationFee: 350, languages: ['Kannada', 'Tulu', 'English'], avatar: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&w=400&q=80', email: 'doc.rashmi@mediflow.com' }
     ];
 
     const timeSlots = [
@@ -131,18 +138,16 @@ const seedDatabase = async () => {
       const docRaw = doctorListRaw[i];
       const targetHospital = createdHospitals[i % createdHospitals.length];
 
-      // Find matching department or assign first department of that hospital
       const dept = createdDepartments.find(
-        d => d.hospital.toString() === targetHospital._id.toString() && d.name.toLowerCase().includes(docRaw.specialty.toLowerCase())
+        d => d.hospital.toString() === targetHospital._id.toString() && d.name.toLowerCase().includes(docRaw.specialty.toLowerCase().split(' ')[0])
       ) || createdDepartments.find(d => d.hospital.toString() === targetHospital._id.toString());
 
-      // Create User account for Doctor
       const docUser = await User.create({
         name: docRaw.name,
         email: docRaw.email,
         password,
         role: 'DOCTOR',
-        phone: `+1-555-010-00${i + 1}`,
+        phone: `+91-98450-000${i + 1 < 10 ? '0' + (i + 1) : i + 1}`,
         specialty: docRaw.specialty,
         hospital: targetHospital._id
       });
@@ -157,9 +162,9 @@ const seedDatabase = async () => {
         experienceYears: docRaw.experienceYears,
         consultationFee: docRaw.consultationFee,
         rating: 4.8 + (i % 3) * 0.08,
-        reviewsCount: 24 + i * 5,
+        reviewsCount: 30 + i * 8,
         languages: docRaw.languages,
-        bio: `Leading Specialist in ${docRaw.specialty} with over ${docRaw.experienceYears} years of clinical experience. Dedicated to evidence-based healthcare and patient-first consultation.`,
+        bio: `Leading Senior Specialist in ${docRaw.specialty} with over ${docRaw.experienceYears} years of clinical expertise across Mangalore & Udupi regional hospitals.`,
         avatar: docRaw.avatar,
         isAvailable: true,
         availableDays,
@@ -170,10 +175,10 @@ const seedDatabase = async () => {
       createdDoctors.push(doctor);
     }
 
-    console.log(`👨‍⚕️ Created ${createdDoctors.length} Doctors with user accounts.`);
+    console.log(`👨‍⚕️ Created ${createdDoctors.length} Regional Doctors in Mangalore & Udupi.`);
 
-    // 5. Create Live Queues for first 3 Doctors in City Care Hospital
-    const firstDoc = createdDoctors[0]; // Dr. Ananya Rao
+    // 5. Create Live Queue for Dr. Padmanabh Kamath at KMC Hospital
+    const firstDoc = createdDoctors[0];
     const firstQueue = await Queue.create({
       hospital: firstDoc.hospital,
       department: firstDoc.department,
@@ -186,9 +191,8 @@ const seedDatabase = async () => {
       status: 'ACTIVE'
     });
 
-    // 6. Create Appointments for Demo Patient
+    // 6. Create Initial Demo Appointment
     const todayStr = new Date().toISOString().split('T')[0];
-
     const appt1 = await Appointment.create({
       appointmentNumber: 'MF-20481',
       patient: demoPatient._id,
@@ -205,7 +209,6 @@ const seedDatabase = async () => {
       estimatedWaitMinutes: 32
     });
 
-    // Create QueueEntry for Appt 1
     await QueueEntry.create({
       queue: firstQueue._id,
       appointment: appt1._id,
@@ -220,7 +223,7 @@ const seedDatabase = async () => {
     const appt2 = await Appointment.create({
       appointmentNumber: 'MF-10932',
       patient: demoPatient._id,
-      doctor: createdDoctors[1]._id, // Dr. Vikramaditya Roy
+      doctor: createdDoctors[1]._id, // Dr. Rajesh Bhakta
       hospital: createdDoctors[1].hospital,
       department: createdDoctors[1].department,
       date: '2026-09-20',
@@ -229,11 +232,10 @@ const seedDatabase = async () => {
       reason: 'Migraine & Tension Headache Assessment',
       status: 'COMPLETED',
       tokenNumber: 'N-12',
-      doctorNotes: 'Patient advised to maintain regular sleep schedule. Prescribed mild prophylactic medication.',
+      doctorNotes: 'Patient advised regular sleep schedule. Prescribed mild prophylactic medication.',
       prescription: ['Tab Propranolol 40mg (1-0-1)', 'Tab Paracetamol 650mg SOS']
     });
 
-    // Create sample review for completed appointment
     await Review.create({
       patient: demoPatient._id,
       doctor: createdDoctors[1]._id,
@@ -243,32 +245,17 @@ const seedDatabase = async () => {
       waitTimeRating: 5,
       staffRating: 5,
       facilityRating: 5,
-      comment: 'Extremely professional doctor! The live queue feature estimated 15 mins and I was called in exactly 14 mins.'
+      comment: 'Outstanding doctor! The live queue estimated 15 mins and I was called in exactly 14 mins.'
     });
 
-    // 7. Seed Notifications for Demo Patient
     await Notification.create({
       user: demoPatient._id,
       title: 'Active Queue Update',
-      message: 'Your token A-27 is currently position #7 in Cardiology OPD. Estimated wait: 32 minutes.',
+      message: 'Your token A-27 is currently position #7 in Cardiology OPD at KMC Hospital. Estimated wait: 32 minutes.',
       type: 'QUEUE'
     });
 
-    await Notification.create({
-      user: demoPatient._id,
-      title: 'Appointment Booked',
-      message: 'Appointment #MF-20481 with Dr. Ananya Rao confirmed for today at 10:30 AM.',
-      type: 'APPOINTMENT'
-    });
-
-    console.log('✅ DATABASE SEEDING COMPLETED SUCCESSFULLY!');
-    console.log('----------------------------------------------------');
-    console.log('DEMO CREDENTIALS FOR TESTING:');
-    console.log('Patient:       patient@mediflow.com / Password123!');
-    console.log('Doctor:        doctor.ananya@mediflow.com / Password123!');
-    console.log('Hospital Admin: admin.citycare@mediflow.com / Password123!');
-    console.log('Super Admin:   superadmin@mediflow.com / Password123!');
-    console.log('----------------------------------------------------');
+    console.log('✅ REGIONAL SEEDING (MANGALORE & UDUPI) COMPLETED SUCCESSFULLY!');
 
     process.exit(0);
   } catch (error) {
